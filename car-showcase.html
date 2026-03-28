@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX — Automotive Excellence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --accent: #E8C840;
+    --accent2: #FF4C1A;
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.12);
+    --text: #ffffff;
+    --nav-h: 72px;
+    --trans: 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+  }
+
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; cursor: none; }
+
+  /* ── BG TRACK ── */
+  #bg-track {
+    position: fixed; inset: 0;
+    width: 200vw; height: 100vh;
+    display: flex;
+    transition: transform var(--trans);
+    will-change: transform;
+    z-index: 0;
+  }
+
+  .bg-slide {
+    flex: 0 0 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .bg-slide::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.85) 0%,
+      rgba(0,0,0,0.3) 45%,
+      rgba(0,0,0,0.1) 100%
+    );
+    z-index: 1;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  #noise {
+    position: fixed; inset: 0; z-index: 2; pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px;
+  }
+
+  /* ── NAV ── */
+  #nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: var(--nav-h);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.15em;
+    color: var(--text);
+    position: relative;
+  }
+  .nav-logo span { color: var(--accent); transition: color 0.6s; }
+
+  .nav-links {
+    display: flex; gap: 36px; list-style: none;
+  }
+  .nav-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -3px; left: 0;
+    width: 0; height: 1px;
+    background: var(--accent);
+    transition: width 0.3s, background 0.6s;
+  }
+  .nav-links a:hover { color: #fff; }
+  .nav-links a:hover::after { width: 100%; }
+
+  .nav-right {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.4);
+  }
+  .nav-right strong { color: var(--accent); transition: color 0.6s; }
+
+  /* ── CORNER BRACKETS ── */
+  .bracket {
+    position: fixed; z-index: 99;
+    width: 28px; height: 28px;
+    pointer-events: none;
+  }
+  .bracket::before, .bracket::after {
+    content: '';
+    position: absolute;
+    background: var(--accent);
+    transition: background 0.6s;
+  }
+  .bracket::before { width: 100%; height: 2px; }
+  .bracket::after  { width: 2px; height: 100%; }
+
+  .bracket-tl { top: 18px; left: 18px; }
+  .bracket-tl::before { top:0; left:0; }
+  .bracket-tl::after  { top:0; left:0; }
+
+  .bracket-tr { top: 18px; right: 18px; transform: scaleX(-1); }
+  .bracket-tr::before { top:0; left:0; }
+  .bracket-tr::after  { top:0; left:0; }
+
+  .bracket-bl { bottom: 18px; left: 18px; transform: scaleY(-1); }
+  .bracket-bl::before { top:0; left:0; }
+  .bracket-bl::after  { top:0; left:0; }
+
+  .bracket-br { bottom: 18px; right: 18px; transform: scale(-1); }
+  .bracket-br::before { top:0; left:0; }
+  .bracket-br::after  { top:0; left:0; }
+
+  /* ── TICKER ── */
+  #ticker {
+    position: fixed; top: var(--nav-h); left: 0; right: 0; z-index: 99;
+    height: 28px;
+    background: rgba(0,0,0,0.5);
+    border-bottom: 1px solid var(--glass-border);
+    overflow: hidden;
+    display: flex; align-items: center;
+  }
+  .ticker-label {
+    flex-shrink: 0;
+    padding: 0 16px;
+    height: 100%;
+    background: var(--accent);
+    display: flex; align-items: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: #000;
+    transition: background 0.6s;
+  }
+  .ticker-inner {
+    display: flex;
+    white-space: nowrap;
+    animation: ticker-scroll 30s linear infinite;
+  }
+  .ticker-inner span {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.45);
+    padding: 0 40px;
+  }
+  .ticker-inner span strong {
+    color: var(--accent);
+    transition: color 0.6s;
+    margin-right: 6px;
+  }
+  @keyframes ticker-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── CONTENT WRAPPER ── */
+  #content-wrapper {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 50;
+    height: calc(100vh - var(--nav-h) - 28px);
+    pointer-events: none;
+  }
+
+  /* ── BOTTOM LEFT ── */
+  #bottom-left {
+    position: absolute;
+    bottom: 60px;
+    left: 48px;
+    max-width: 640px;
+    pointer-events: all;
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--glass-border);
+    border-radius: 2px;
+    padding: 5px 12px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(8px);
+  }
+  .badge-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    transition: background 0.6s;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 var(--accent); }
+    50% { opacity: 0.7; transform: scale(1.15); box-shadow: 0 0 0 5px rgba(232,200,64,0); }
+  }
+  .badge-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+  }
+  .badge-text strong { color: var(--accent); transition: color 0.6s; }
+
+  /* Headline */
+  .headline {
+    line-height: 0.88;
+    margin-bottom: 22px;
+    overflow: hidden;
+  }
+  .hl-solid {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 9vw, 130px);
+    letter-spacing: 0.04em;
+    color: #fff;
+  }
+  .hl-outline {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 9vw, 130px);
+    letter-spacing: 0.04em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255,255,255,0.35);
+  }
+  .hl-gradient {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 9vw, 130px);
+    letter-spacing: 0.04em;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: background 0.6s;
+  }
+
+  /* Subtitle */
+  .subtitle {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.5);
+    max-width: 420px;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+  }
+
+  /* CTAs */
+  .cta-row { display: flex; gap: 14px; align-items: center; }
+
+  .cta-primary {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #000;
+    background: var(--accent);
+    border: none;
+    padding: 14px 28px;
+    cursor: none;
+    transition: background 0.4s, transform 0.2s;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    font-weight: 700;
+  }
+  .cta-primary:hover { transform: translateY(-2px); background: #fff; }
+
+  .cta-secondary {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 13px 28px;
+    cursor: none;
+    transition: border-color 0.3s, color 0.3s, transform 0.2s;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .cta-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+  /* ── BOTTOM RIGHT — STATS CARD ── */
+  #bottom-right {
+    position: absolute;
+    bottom: 60px;
+    right: 48px;
+    pointer-events: all;
+    width: 260px;
+  }
+
+  .stats-card {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid rgba(255,255,255,0.18);
+    border-left: 1px solid rgba(255,255,255,0.14);
+    padding: 24px;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+    position: relative;
+  }
+  .stats-card::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 0 14px 14px 0;
+    border-color: transparent var(--accent) transparent transparent;
+    transition: border-color 0.6s;
+  }
+
+  .stats-header {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    transition: color 0.6s;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .stat-row {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .stat-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+  }
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 0.05em;
+    color: #fff;
+    line-height: 1;
+  }
+  .stat-unit {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    transition: color 0.6s;
+    margin-left: 3px;
+  }
+
+  /* ── SLIDE COUNTER ── */
+  #slide-counter {
+    position: fixed;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .counter-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.2);
+    cursor: none;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .counter-num.active {
+    color: var(--accent);
+    transition: color 0.6s;
+  }
+  .counter-num::before {
+    content: '';
+    position: absolute;
+    left: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 1px;
+    background: var(--accent);
+    transition: width 0.3s, background 0.6s;
+  }
+  .counter-num.active::before { width: 12px; }
+
+  .counter-line {
+    width: 1px; height: 40px;
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar {
+    position: fixed;
+    bottom: 0; left: 0;
+    height: 2px;
+    background: var(--accent);
+    transition: background 0.6s;
+    z-index: 100;
+    width: 0%;
+    transition: width 8s linear, background 0.6s;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  #cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: border-color 0.4s, transform 0.15s, width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: difference;
+  }
+  #cursor-trail {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.08s linear;
+  }
+  #cursor.hover { width: 30px; height: 30px; background: rgba(255,255,255,0.05); }
+
+  /* ── SWIPE HINT ── */
+  #swipe-hint {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99;
+    display: flex; align-items: center; gap: 10px;
+    opacity: 1;
+    transition: opacity 0.5s;
+    pointer-events: none;
+  }
+  #swipe-hint.hidden { opacity: 0; }
+  .hint-line {
+    width: 30px; height: 1px;
+    background: rgba(255,255,255,0.2);
+    animation: hint-pulse 2s ease-in-out infinite;
+  }
+  .hint-line:last-child { animation-delay: 0.3s; }
+  .hint-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+  }
+  @keyframes hint-pulse {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.7; }
+  }
+
+  /* ── TRANSITIONS ── */
+  #bottom-left, #bottom-right {
+    transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+  #bottom-left.out { opacity: 0; transform: translateY(30px); }
+  #bottom-right.out { opacity: 0; transform: translateY(20px); }
+
+  /* Color transition targets */
+  .accent-bg { background: var(--accent) !important; }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+
+<!-- Noise overlay -->
+<div id="noise"></div>
+
+<!-- Corner brackets -->
+<div class="bracket bracket-tl"></div>
+<div class="bracket bracket-tr"></div>
+<div class="bracket bracket-bl"></div>
+<div class="bracket bracket-br"></div>
+
+<!-- Navbar -->
+<nav id="nav">
+  <div class="nav-logo">APEX<span id="nav-dot">.</span></div>
+  <ul class="nav-links">
+    <li><a href="#">Models</a></li>
+    <li><a href="#">Performance</a></li>
+    <li><a href="#">Configure</a></li>
+    <li><a href="#">Experience</a></li>
+  </ul>
+  <div class="nav-right">EST. <strong id="nav-year">2024</strong> / SEASON II</div>
+</nav>
+
+<!-- Ticker -->
+<div id="ticker">
+  <div class="ticker-label">LIVE</div>
+  <div class="ticker-inner" id="ticker-inner"></div>
+</div>
+
+<!-- BG Track -->
+<div id="bg-track">
+  <div class="bg-slide" id="slide-bg-0"></div>
+  <div class="bg-slide" id="slide-bg-1"></div>
+</div>
+
+<!-- Progress bar -->
+<div id="progress-bar"></div>
+
+<!-- Slide counter -->
+<div id="slide-counter"></div>
+
+<!-- Content -->
+<div id="content-wrapper">
+  <div id="bottom-left">
+    <div class="badge">
+      <div class="badge-dot"></div>
+      <div class="badge-text"><strong id="badge-label">NEW</strong> <span id="badge-sub">2025 SEASON LAUNCH</span></div>
+    </div>
+    <div class="headline">
+      <span class="hl-solid" id="hl-solid">UNLEASH</span>
+      <span class="hl-outline" id="hl-outline">THE BEAST</span>
+      <span class="hl-gradient" id="hl-gradient">WITHIN</span>
+    </div>
+    <p class="subtitle" id="subtitle">
+      Zero to legend in 2.8 seconds. The machine that rewrites everything you knew about speed, precision, and control.
+    </p>
+    <div class="cta-row">
+      <button class="cta-primary" id="cta-primary">Configure Yours</button>
+      <button class="cta-secondary" id="cta-secondary">Watch Film</button>
+    </div>
+  </div>
+
+  <div id="bottom-right">
+    <div class="stats-card">
+      <div class="stats-header" id="stats-header">Performance Specs</div>
+      <div class="stat-row">
+        <div class="stat-label">0 – 100 KM/H</div>
+        <div><span class="stat-value" id="stat0">2.8</span><span class="stat-unit">SEC</span></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Power Output</div>
+        <div><span class="stat-value" id="stat1">1,020</span><span class="stat-unit">HP</span></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Top Speed</div>
+        <div><span class="stat-value" id="stat2">355</span><span class="stat-unit">KM/H</span></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Torque</div>
+        <div><span class="stat-value" id="stat3">1,050</span><span class="stat-unit">NM</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Swipe hint -->
+<div id="swipe-hint">
+  <div class="hint-line"></div>
+  <span class="hint-text">Scroll or Swipe</span>
+  <div class="hint-line"></div>
+</div>
+
+<script>
+// ── SLIDES DATA ──
+const slides = [
+  {
+    bg: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1920&q=85',
+    accent: '#E8C840',
+    accent2: '#FF4C1A',
+    badge: { label: 'NEW', sub: '2025 SEASON LAUNCH' },
+    hl: ['UNLEASH', 'THE BEAST', 'WITHIN'],
+    subtitle: 'Zero to legend in 2.8 seconds. The machine that rewrites everything you knew about speed, precision, and control.',
+    cta: ['Configure Yours', 'Watch Film'],
+    stats: { header: 'Performance Specs', vals: ['2.8', '1,020', '355', '1,050'], units: ['SEC', 'HP', 'KM/H', 'NM'], labels: ['0 – 100 KM/H', 'Power Output', 'Top Speed', 'Torque'] },
+    ticker: [
+      { label: 'APEX GT-R', val: '0-100 IN 2.8S' },
+      { label: 'MOTOR TREND', val: 'CAR OF THE YEAR' },
+      { label: 'PRODUCTION', val: 'LIMITED TO 500 UNITS' },
+      { label: 'DELIVERY', val: 'Q2 2025' },
+    ]
+  },
+  {
+    bg: 'https://images.unsplash.com/photo-1606220838315-056192d5e927?w=1920&q=85',
+    accent: '#00E5FF',
+    accent2: '#7B2FFF',
+    badge: { label: 'EV', sub: 'ELECTRIC HYPERCAR' },
+    hl: ['SILENCE', 'IS THE NEW', 'POWER'],
+    subtitle: 'Four electric motors. 1,877 horsepower. A new definition of what silence sounds like at 400 km/h.',
+    cta: ['Reserve Now', 'Explore Tech'],
+    stats: { header: 'Electric Performance', vals: ['1.9', '1,877', '410', '2,300'], units: ['SEC', 'HP', 'KM/H', 'NM'], labels: ['0 – 100 KM/H', 'Combined Power', 'Top Speed', 'Total Torque'] },
+    ticker: [
+      { label: 'APEX EV-X', val: '0-100 IN 1.9S' },
+      { label: 'RANGE', val: '580KM WLTP' },
+      { label: 'CHARGE', val: '0-80% IN 18 MINUTES' },
+      { label: 'MOTORS', val: '4 × AXIAL FLUX' },
+    ]
+  },
+  {
+    bg: 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=1920&q=85',
+    accent: '#FF3A5E',
+    accent2: '#FF8C00',
+    badge: { label: 'RACE', sub: 'TRACK EDITION ONLY' },
+    hl: ['BORN', 'ON THE', 'CIRCUIT'],
+    subtitle: 'No compromises. No road-legal concessions. Pure downforce engineering extracted from Formula competition.',
+    cta: ['Track Experience', 'View Specs'],
+    stats: { header: 'Track Specification', vals: ['1.4', '820', '1,200', '4.2'], units: ['G', 'KG', 'DFN', 'KG:1'], labels: ['Peak Cornering G', 'Dry Weight', 'Downforce (Nm)', 'Power:Weight'] },
+    ticker: [
+      { label: 'APEX R-GTE', val: 'NÜRBURGRING LAP RECORD' },
+      { label: 'AERO', val: '1,200NM DOWNFORCE AT 250KM/H' },
+      { label: 'PRODUCTION', val: '25 UNITS WORLDWIDE' },
+      { label: 'TRACK ONLY', val: 'NO ROAD REGISTRATION' },
+    ]
+  },
+  {
+    bg: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1920&q=85',
+    accent: '#39FF97',
+    accent2: '#00BFFF',
+    badge: { label: 'CONCEPT', sub: 'FUTURE COLLECTION' },
+    hl: ['DESIGN', 'THE FUTURE', 'NOW'],
+    subtitle: 'An exercise in pure automotive sculpture. Every surface calculated. Every edge intentional. Built to inspire what comes next.',
+    cta: ['Explore Concept', 'Join Waitlist'],
+    stats: { header: 'Design Metrics', vals: ['0.18', '4.9', '2180', '71'], units: ['CD', 'SEC', 'MM', 'KG'], labels: ['Drag Coefficient', '0-300 KM/H', 'Wheelbase', 'Unladen Mass'] },
+    ticker: [
+      { label: 'APEX VISION', val: '2027 PRODUCTION PREVIEW' },
+      { label: 'MATERIAL', val: 'GRAPHENE-KEVLAR MONOCOQUE' },
+      { label: 'AI AERO', val: 'ACTIVE SURFACE CONTROL' },
+      { label: 'REVEAL', val: 'GENEVA MOTOR SHOW 2025' },
+    ]
+  }
+];
+
+let current = 0;
+let animating = false;
+let autoTimer = null;
+let touchStartX = 0;
+
+// ── DOM REFS ──
+const bgTrack = document.getElementById('bg-track');
+const bg0 = document.getElementById('slide-bg-0');
+const bg1 = document.getElementById('slide-bg-1');
+const bottomLeft = document.getElementById('bottom-left');
+const bottomRight = document.getElementById('bottom-right');
+const progressBar = document.getElementById('progress-bar');
+const slideCounter = document.getElementById('slide-counter');
+const tickerInner = document.getElementById('ticker-inner');
+const swipeHint = document.getElementById('swipe-hint');
+const cursor = document.getElementById('cursor');
+const cursorTrail = document.getElementById('cursor-trail');
+
+// ── PRELOAD IMAGES ──
+slides.forEach(s => { const i = new Image(); i.src = s.bg; });
+
+// ── BUILD COUNTER ──
+function buildCounter() {
+  slideCounter.innerHTML = '';
+  slides.forEach((_, i) => {
+    if (i > 0) {
+      const line = document.createElement('div');
+      line.className = 'counter-line';
+      slideCounter.appendChild(line);
+    }
+    const num = document.createElement('div');
+    num.className = 'counter-num' + (i === current ? ' active' : '');
+    num.textContent = String(i + 1).padStart(2, '0');
+    num.addEventListener('click', () => goTo(i));
+    slideCounter.appendChild(num);
+  });
+}
+buildCounter();
+
+// ── SET SLIDE ──
+function setSlide(idx, dir) {
+  const s = slides[idx];
+
+  // Update CSS vars
+  document.documentElement.style.setProperty('--accent', s.accent);
+  document.documentElement.style.setProperty('--accent2', s.accent2);
+
+  // Update badge dot animation color
+  const style = document.getElementById('dynamic-style') || (() => {
+    const el = document.createElement('style');
+    el.id = 'dynamic-style';
+    document.head.appendChild(el);
+    return el;
+  })();
+  style.textContent = `
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 ${s.accent}; }
+      50% { opacity: 0.7; transform: scale(1.15); box-shadow: 0 0 0 5px ${s.accent}00; }
+    }
+    .hl-gradient {
+      background: linear-gradient(90deg, ${s.accent}, ${s.accent2}) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      background-clip: text !important;
+    }
+  `;
+
+  // Content
+  document.getElementById('badge-label').textContent = s.badge.label;
+  document.getElementById('badge-sub').textContent = s.badge.sub;
+  document.getElementById('hl-solid').textContent = s.hl[0];
+  document.getElementById('hl-outline').textContent = s.hl[1];
+  document.getElementById('hl-gradient').textContent = s.hl[2];
+  document.getElementById('subtitle').textContent = s.subtitle;
+  document.getElementById('cta-primary').textContent = s.cta[0];
+  document.getElementById('cta-secondary').textContent = s.cta[1];
+  document.getElementById('stats-header').textContent = s.stats.header;
+  s.stats.vals.forEach((v, i) => {
+    document.getElementById('stat' + i).textContent = v;
+  });
+  document.querySelectorAll('.stat-unit').forEach((el, i) => {
+    el.textContent = s.stats.units[i];
+  });
+  document.querySelectorAll('.stat-label').forEach((el, i) => {
+    el.textContent = s.stats.labels[i];
+  });
+
+  // Ticker
+  buildTicker(s.ticker);
+
+  // Counter
+  document.querySelectorAll('.counter-num').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+
+  // Progress bar
+  resetProgress();
+}
+
+function buildTicker(data) {
+  const items = [...data, ...data];
+  const html = items.map(d =>
+    `<span><strong>${d.label}</strong> — ${d.val}</span>`
+  ).join('');
+  tickerInner.innerHTML = html;
+}
+buildTicker(slides[0].ticker);
+
+// ── BG SETUP ──
+// We keep two bg divs. They swap: one is always at position 0 (current),
+// one is preloaded at position 1 (next). The track slides.
+let bgSlots = [0, 1]; // slot 0 = left panel, slot 1 = right panel (off-screen)
+let bgLoaded = [-1, -1];
+
+function loadBg(slot, idx) {
+  if (bgLoaded[slot] === idx) return;
+  const el = slot === 0 ? bg0 : bg1;
+  el.style.backgroundImage = `url(${slides[idx].bg})`;
+  bgLoaded[slot] = idx;
+}
+
+// Initial load
+loadBg(0, 0);
+loadBg(1, 1 % slides.length);
+bgTrack.style.transform = 'translateX(0)';
+
+// Zoom on current bg
+let zoomEl = bg0;
+let zoomAnim = null;
+function startZoom(el) {
+  if (zoomAnim) clearInterval(zoomAnim);
+  el.style.transition = 'transform 8s linear';
+  el.style.transform = 'scale(1.08)';
+  setTimeout(() => { el.style.transform = 'scale(1)'; }, 100);
+}
+
+startZoom(bg0);
+setSlide(0);
+
+// ── NAVIGATION ──
+function goTo(idx) {
+  if (animating || idx === current) return;
+  animating = true;
+  clearAutoTimer();
+
+  const prev = current;
+  const s = slides[idx];
+
+  // Determine direction for bg track
+  const goRight = idx > prev;
+
+  // Fade out content
+  bottomLeft.style.transition = 'opacity 0.35s ease, transform 0.4s cubic-bezier(0.4,0,0.2,1)';
+  bottomRight.style.transition = 'opacity 0.3s ease, transform 0.35s cubic-bezier(0.4,0,0.2,1)';
+
+  // Force reflow trick — read offsetHeight to flush styles
+  void bottomLeft.offsetHeight;
+
+  bottomLeft.style.opacity = '0';
+  bottomLeft.style.transform = 'translateY(28px)';
+  bottomRight.style.opacity = '0';
+  bottomRight.style.transform = 'translateY(16px)';
+
+  setTimeout(() => {
+    // Load next bg into the correct slot
+    const nextSlot = 1;
+    loadBg(nextSlot, idx);
+
+    // Slide the track
+    bgTrack.style.transition = 'transform 0.9s cubic-bezier(0.76, 0, 0.24, 1)';
+    bgTrack.style.transform = 'translateX(-100vw)';
+
+    // Start zoom on next panel
+    bg1.style.transition = 'none';
+    bg1.style.transform = 'scale(1.08)';
+    void bg1.offsetHeight;
+    bg1.style.transition = 'transform 8s linear';
+    bg1.style.transform = 'scale(1)';
+
+    setTimeout(() => {
+      // After track finishes, reset track silently
+      bgTrack.style.transition = 'none';
+      bgTrack.style.transform = 'translateX(0)';
+
+      // Swap the bg images: move what was slot 1 to slot 0
+      bg0.style.backgroundImage = `url(${slides[idx].bg})`;
+      bgLoaded[0] = idx;
+
+      // Preload next
+      const nextNext = (idx + 1) % slides.length;
+      bg1.style.backgroundImage = `url(${slides[nextNext].bg})`;
+      bgLoaded[1] = nextNext;
+
+      // Reset zoom state
+      bg0.style.transition = 'none';
+      bg0.style.transform = 'scale(1.08)';
+      void bg0.offsetHeight;
+      bg0.style.transition = 'transform 8s linear';
+      bg0.style.transform = 'scale(1)';
+
+      bg1.style.transition = 'none';
+      bg1.style.transform = 'scale(1)';
+
+      current = idx;
+      setSlide(idx);
+
+      // Bring content back in
+      // Force reflow before re-animating in
+      void bottomLeft.offsetHeight;
+
+      bottomLeft.style.transition = 'opacity 0.5s ease 0.05s, transform 0.55s cubic-bezier(0.22,1,0.36,1) 0.05s';
+      bottomLeft.style.opacity = '1';
+      bottomLeft.style.transform = 'translateY(0)';
+
+      bottomRight.style.transition = 'opacity 0.45s ease 0.12s, transform 0.5s cubic-bezier(0.22,1,0.36,1) 0.12s';
+      bottomRight.style.opacity = '1';
+      bottomRight.style.transform = 'translateY(0)';
+
+      buildCounter();
+      startAutoTimer();
+      animating = false;
+    }, 920);
+  }, 350);
+}
+
+function next() { goTo((current + 1) % slides.length); }
+function prev() { goTo((current - 1 + slides.length) % slides.length); }
+
+// ── AUTO TIMER ──
+function startAutoTimer() {
+  clearAutoTimer();
+  progressBar.style.transition = 'none';
+  progressBar.style.width = '0%';
+  void progressBar.offsetHeight;
+  progressBar.style.transition = 'width 8s linear';
+  progressBar.style.width = '100%';
+  autoTimer = setTimeout(() => { next(); }, 8000);
+}
+
+function clearAutoTimer() {
+  if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+  progressBar.style.transition = 'none';
+  progressBar.style.width = '0%';
+}
+
+function resetProgress() {
+  // called inside setSlide, so just kick off
+}
+
+startAutoTimer();
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prev();
+});
+
+// ── SCROLL ──
+let wheelCooldown = false;
+document.addEventListener('wheel', e => {
+  if (wheelCooldown) return;
+  wheelCooldown = true;
+  setTimeout(() => { wheelCooldown = false; }, 1000);
+  e.deltaY > 0 ? next() : prev();
+}, { passive: true });
+
+// ── TOUCH ──
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(dx) > 50) { dx > 0 ? next() : prev(); }
+  swipeHint.classList.add('hidden');
+});
+
+// Hide hint after first interaction
+document.addEventListener('wheel', () => swipeHint.classList.add('hidden'), { once: true });
+document.addEventListener('keydown', () => swipeHint.classList.add('hidden'), { once: true });
+
+// ── MOUSE PARALLAX ──
+let mouseX = 0, mouseY = 0;
+let targetX = 0, targetY = 0;
+document.addEventListener('mousemove', e => {
+  mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+  mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+function parallaxLoop() {
+  targetX += (mouseX - targetX) * 0.04;
+  targetY += (mouseY - targetY) * 0.04;
+  const tx = targetX * 18;
+  const ty = targetY * 10;
+  bg0.style.transform = bg0.style.transform.includes('scale')
+    ? bg0.style.transform
+    : `translate(${tx}px, ${ty}px)`;
+
+  // apply subtle offset to bg without breaking scale
+  [bg0, bg1].forEach(el => {
+    const scaleMatch = el.style.transform.match(/scale\(([^)]+)\)/);
+    const scaleVal = scaleMatch ? scaleMatch[1] : '1';
+    el.style.transform = `scale(${scaleVal}) translate(${tx * 0.5}px, ${ty * 0.3}px)`;
+  });
+
+  requestAnimationFrame(parallaxLoop);
+}
+requestAnimationFrame(parallaxLoop);
+
+// ── CURSOR ──
+let cx = 0, cy = 0, tx2 = 0, ty2 = 0;
+document.addEventListener('mousemove', e => {
+  cx = e.clientX; cy = e.clientY;
+  cursor.style.left = cx + 'px';
+  cursor.style.top  = cy + 'px';
+});
+function cursorLoop() {
+  tx2 += (cx - tx2) * 0.12;
+  ty2 += (cy - ty2) * 0.12;
+  cursorTrail.style.left = tx2 + 'px';
+  cursorTrail.style.top  = ty2 + 'px';
+  requestAnimationFrame(cursorLoop);
+}
+requestAnimationFrame(cursorLoop);
+
+document.querySelectorAll('button, a, .counter-num').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+</script>
+</body>
+</html>
